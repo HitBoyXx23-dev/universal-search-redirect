@@ -1,17 +1,34 @@
 const express = require("express");
 const path = require("path");
+const { nanoid } = require("nanoid");
 const url = require("url");
 
 const app = express();
 const PORT = 3000;
 
+app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-app.get("/:fakePath", (req, res) => {
-  let search = req.query[""];
-  let base = req.query.base;
+const redirectDB = {}; 
+// { id: { baseUrl, fakePath } }
 
-  // If raw query style like =cats
+// Create a hidden redirect record
+app.post("/create", (req, res) => {
+  const { baseUrl, fakePath } = req.body;
+  if (!baseUrl || !fakePath) return res.status(400).send("bad");
+
+  const id = nanoid(8); // short random key
+
+  redirectDB[id] = { baseUrl, fakePath };
+  res.json({ id });
+});
+
+// Handle the redirect
+app.get("/:id/:fakePath", (req, res) => {
+  const { id, fakePath } = req.params;
+  let search = req.query[""];
+
+  // parse raw =query
   if (!search) {
     const parsed = url.parse(req.url);
     if (parsed.query && parsed.query.startsWith("=")) {
@@ -19,18 +36,18 @@ app.get("/:fakePath", (req, res) => {
     }
   }
 
-  if (!search || !base) {
-    return res.redirect("/");
-  }
+  if (!search) return res.redirect("/");
 
-  // Build destination URL
-  const redirectUrl = `${base}${encodeURIComponent(search)}`;
-  res.redirect(redirectUrl);
+  const record = redirectDB[id];
+  if (!record || record.fakePath !== fakePath) return res.redirect("/");
+
+  const finalUrl = record.baseUrl + encodeURIComponent(search);
+  return res.redirect(finalUrl);
 });
 
-// Home fallback
-app.get("*", (req, res) => {
+// fallback
+app.get("*", (_, res) => {
   res.sendFile(path.join(__dirname, "public", "index.html"));
 });
 
-app.listen(PORT, () => console.log(`Running: http://localhost:${PORT}`));
+app.listen(PORT, () => console.log("http://localhost:" + PORT));
