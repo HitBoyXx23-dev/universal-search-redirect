@@ -1,32 +1,28 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Universal Fake Redirect</title>
+  <title>Create Hidden Redirect</title>
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-<h1>Create Fake URL → Real Redirect</h1>
+<div class="box">
+  <h1>Create Fake Link</h1>
 
-<div>
-  <label>Fake path:</label>
+  <label>Fake Path</label>
   <input id="fakePath" placeholder="disney">
-</div>
 
-<div>
-  <label>Base URL:</label>
+  <label>Base URL</label>
   <input id="baseUrl" placeholder="https://www.youtube.com/results?search_query=">
-</div>
 
-<div>
-  <label>Search:</label>
+  <label>Search Query</label>
   <input id="search" placeholder="anime">
+
+  <button id="make">Generate Link</button>
+
+  <p>Fake Link:</p>
+  <a id="link"></a>
 </div>
-
-<button id="generate">Generate Link</button>
-
-<p>Link:</p>
-<a id="output" href="#">(waiting)</a>
 
 <script src="script.js"></script>
 </body>
